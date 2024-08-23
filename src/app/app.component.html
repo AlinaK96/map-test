@@ -1,0 +1,10 @@
+<div class="select">
+  <mat-form-field>
+    <mat-label>Выбрать место</mat-label>
+    <mat-select [formControl]="layersFC" (selectionChange)="toggleLayers($event.value)">
+      <mat-option *ngFor="let layer of layers" [value]="layer">{{layer.name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div id="map"></div>

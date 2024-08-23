@@ -1,0 +1,9 @@
+@import "../../node_modules/ol/ol.css"; 
+
+
+#map {
+    width: 100%;
+    height: 770px;
+    position: relative;
+}
+
