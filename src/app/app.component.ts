@@ -19,6 +19,13 @@ import TileLayer from 'ol/layer/Tile';
 import ImageSource from 'ol/source/Image';
 import { CommonModule } from '@angular/common';
 
+import { Vector as VectorLayer } from 'ol/layer';
+import { Vector as VectorSource } from 'ol/source';
+import { Feature } from 'ol';
+import { Point as OlPoint } from 'ol/geom';
+import { Style, Circle as OlCircle, Fill, Stroke } from 'ol/style';
+
+
 export class LayerModel {
   constructor(
     public name: string,
@@ -27,6 +34,23 @@ export class LayerModel {
     public isActive: boolean
   ) {}
 }
+
+// points.model.ts
+export interface Point {
+  Id: number;
+  DrillingProjectId: number;
+  WellNumber: string;
+  Lat: number;
+  Lon: number;
+  X: number;
+  Y: number;
+  Z: number;
+  Depth: number;
+  Angle: number;
+  Dx: number;
+  Dy: number;
+}
+
 
 @Component({
   selector: 'app-root',
@@ -40,6 +64,8 @@ export class AppComponent {
   private map!: OlMap;
   public layersFC = new FormControl();
   public layers: LayerModel[] = [];
+  public points: Point[] = [];
+
 
   private coordinates: { [key: string]: [number, number] } = {
     'wms_layer_may': [86.7236820, 53.9716230],
@@ -58,6 +84,8 @@ export class AppComponent {
     this.layersFC.valueChanges.subscribe(selectedLayers => {
       this.toggleLayers(selectedLayers);
     });
+
+    this.centerMapOnPoints(this.points); 
   }
 
   private initializeMap(): void {
@@ -77,7 +105,74 @@ export class AppComponent {
       }),
       controls: []
     });
+
+    this.points = [
+      {
+        "Id": 3193,
+        "DrillingProjectId": 4,
+        "WellNumber": "1",
+        "Lat": 55.627078833311,
+        "Lon": 86.1683409246918,
+        "X": 86.1683409246918,
+        "Y": 55.627078833311,
+        "Z": 169.4652732834,
+        "Depth": 12.0,
+        "Angle": 0.0,
+        "Dx": 0.0,
+        "Dy": 0.0
+      },
+      {
+        "Id": 3194,
+        "DrillingProjectId": 4,
+        "WellNumber": "2",
+        "Lat": 55.6271324237352,
+        "Lon": 86.1683309213025,
+        "X": 86.1683309213025,
+        "Y": 55.6271324237352,
+        "Z": 169.5080735038,
+        "Depth": 12.0,
+        "Angle": 0.0,
+        "Dx": 0.0,
+        "Dy": 0.0
+      }
+    ];
+
+    this.addPointsToMap();
   }
+
+  private addPointsToMap(): void {
+    const vectorSource = new VectorSource();
+    
+    this.points.forEach(point => {
+      const feature = new Feature({
+        geometry: new OlPoint(transform([point.Lon, point.Lat], 'EPSG:4326', 'EPSG:3857')),
+        name: point.WellNumber
+        
+      });
+      feature.setStyle(new Style({
+        image: new OlCircle({
+          radius: 7, 
+          fill: new Fill({
+            color: '#00FF1A' 
+          }),
+          stroke: new Stroke({
+            color: '#000000', 
+            width: 1 
+          })
+        })
+      }));
+
+      vectorSource.addFeature(feature);
+    });
+
+    const vectorLayer = new VectorLayer({
+      source: vectorSource
+    });
+
+    this.map.addLayer(vectorLayer);
+    
+  }
+
 
   private initializeLayers(): void {
     this.layers = [
@@ -137,6 +232,26 @@ export class AppComponent {
       const center = transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857');  
       this.map.getView().setCenter(center);
     }
+  }
+
+  centerMapOnPoints(points: Point[]): void {
+    if (points.length === 0) return;
+  
+    // Вычислите средние координаты
+    const latitudes = points.map(point => point.Lat);
+    const longitudes = points.map(point => point.Lon);
+    
+    const avgLat = latitudes.reduce((a, b) => a + b, 0) / latitudes.length;
+    const avgLon = longitudes.reduce((a, b) => a + b, 0) / longitudes.length;
+  
+    // Преобразуйте средние координаты в проекцию карты
+    const center = transform([avgLon, avgLat], 'EPSG:4326', 'EPSG:3857');
+  
+    // Установите центр карты
+    this.map.getView().animate({
+      center: center,
+      duration: 1000 // Продолжительность анимации
+    });
   }
 
   private wmsSourceMay = new OlImageWMS({
