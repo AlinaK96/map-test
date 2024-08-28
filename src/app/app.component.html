@@ -1,10 +1,81 @@
-<div class="select">
-  <mat-form-field>
-    <mat-label>Выбрать место</mat-label>
-    <mat-select [formControl]="layersFC" (selectionChange)="toggleLayers($event.value)">
-      <mat-option *ngFor="let layer of layers" [value]="layer">{{layer.name}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+<div #treeContainer class="container">
+  <ul>
+    <ng-container *ngFor="let group of tree">
+      <li>
+        <div
+          (click)="handleGroupClick(group.Id, group)"
+          [ngClass]="{'selected': isSelected(group.Id, 'group')}"
+          class="tree-item"
+        >
+          <span class="icon-container">
+            <span class="icon" *ngIf="group.children.length > 0 || (group.types && group.types.length > 0)">
+              {{ group.isExpanded ? '−' : '+' }}
+            </span>
+          </span>
+          <img src="/group.png" class="icon-image" alt="Group Icon">
+          {{ group.Name }}
+        </div>
+
+        <ul *ngIf="group.isExpanded" style="margin-left: 20px;">
+          <ng-container *ngFor="let child of group.children">
+            <li>
+              <div
+                (click)="handleGroupClick(child.Id, child)"
+                [ngClass]="{'selected': isSelected(child.Id, 'group')}"
+                class="tree-item"
+              >
+
+                <span class="icon-container">
+                  <span class="icon" *ngIf="child.children.length > 0 || (child.types && child.types.length > 0)">
+                    {{ child.isExpanded ? '−' : '+' }}
+                  </span>
+                </span>
+
+                <img src="/group.png" class="icon-image" alt="Group Icon">
+                {{ child.Name }}
+              </div>
+
+              <ul *ngIf="child.isExpanded" style="margin-left: 20px;">
+                <ng-container *ngFor="let grandChild of child.children">
+                  <li>
+                    <div
+                      (click)="handleGroupClick(grandChild.Id, grandChild)"
+                      [ngClass]="{'selected': isSelected(grandChild.Id, 'group')}"
+                      class="tree-item"
+                    >
+                      <span class="icon-container">
+                        <span class="icon" *ngIf="grandChild.children.length > 0 || (grandChild.types && grandChild.types.length > 0)">
+                          {{ grandChild.isExpanded ? '−' : '+' }}
+                        </span>
+                      </span>
+
+                      <img src="/group.png" class="icon-image" alt="Group Icon">
+                      {{ grandChild.Name }}
+                    </div>
+                  </li>
+                </ng-container>
+              </ul>
+            </li>
+          </ng-container>
+        </ul>
+        <ul *ngIf="group.isExpanded && group.types && group.types.length > 0" style="margin-left: 20px;">
+          <ng-container *ngFor="let type of group.types">
+            <li>
+              <div
+                (click)="handleTypeClick(type.Id)"
+                [ngClass]="{'selected': isSelected(type.Id, 'type')}"
+                class="tree-item"
+              >
+                <span class="icon-container"></span>
+  
+                <img src="/type.png" class="type-image" alt="Type Icon">
+                {{ type.Name }}
+              </div>
+            </li>
+          </ng-container>
+        </ul>
+      </li>
+    </ng-container>
+  </ul>
 </div>
 
-<div id="map"></div>
