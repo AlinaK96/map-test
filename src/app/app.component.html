@@ -9,55 +9,18 @@
         >
           <span class="icon-container">
             <span class="icon" *ngIf="group.children.length > 0 || (group.types && group.types.length > 0)">
-              {{ group.isExpanded ? '−' : '+' }}
+              {{ group.isExpanded ? '-' : '›' }}
             </span>
           </span>
-          <img src="/group.png" class="icon-image" alt="Group Icon">
+          <img src="https://cs-fleet.ru/thumb/2/9KdGv9owG8WM3Odp3jplJA/350r350/d/sudovaya_zapchast.png" class="icon-image" alt="Group Icon">
           {{ group.Name }}
         </div>
 
-        <ul *ngIf="group.isExpanded" style="margin-left: 20px;">
-          <ng-container *ngFor="let child of group.children">
-            <li>
-              <div
-                (click)="handleGroupClick(child.Id, child)"
-                [ngClass]="{'selected': isSelected(child.Id, 'group')}"
-                class="tree-item"
-              >
 
-                <span class="icon-container">
-                  <span class="icon" *ngIf="child.children.length > 0 || (child.types && child.types.length > 0)">
-                    {{ child.isExpanded ? '−' : '+' }}
-                  </span>
-                </span>
-
-                <img src="/group.png" class="icon-image" alt="Group Icon">
-                {{ child.Name }}
-              </div>
-
-              <ul *ngIf="child.isExpanded" style="margin-left: 20px;">
-                <ng-container *ngFor="let grandChild of child.children">
-                  <li>
-                    <div
-                      (click)="handleGroupClick(grandChild.Id, grandChild)"
-                      [ngClass]="{'selected': isSelected(grandChild.Id, 'group')}"
-                      class="tree-item"
-                    >
-                      <span class="icon-container">
-                        <span class="icon" *ngIf="grandChild.children.length > 0 || (grandChild.types && grandChild.types.length > 0)">
-                          {{ grandChild.isExpanded ? '−' : '+' }}
-                        </span>
-                      </span>
-
-                      <img src="/group.png" class="icon-image" alt="Group Icon">
-                      {{ grandChild.Name }}
-                    </div>
-                  </li>
-                </ng-container>
-              </ul>
-            </li>
-          </ng-container>
+        <ul *ngIf="group.isExpanded && group.children.length > 0" style="margin-left: 20px;">
+          <ng-container *ngTemplateOutlet="recursiveGroup; context:{ $implicit: group.children }"></ng-container>
         </ul>
+
         <ul *ngIf="group.isExpanded && group.types && group.types.length > 0" style="margin-left: 20px;">
           <ng-container *ngFor="let type of group.types">
             <li>
@@ -67,8 +30,7 @@
                 class="tree-item"
               >
                 <span class="icon-container"></span>
-  
-                <img src="/type.png" class="type-image" alt="Type Icon">
+                <img src="https://kartinki.pibig.info/uploads/posts/2023-08/1692294662_kartinki-pibig-info-p-kartinka-shesternya-pinterest-61.jpg" class="type-image" alt="Type Icon">
                 {{ type.Name }}
               </div>
             </li>
@@ -77,5 +39,45 @@
       </li>
     </ng-container>
   </ul>
-</div>
 
+
+  <ng-template #recursiveGroup let-children>
+    <ng-container *ngFor="let child of children">
+      <li>
+        <div
+          (click)="handleGroupClick(child.Id, child)"
+          [ngClass]="{'selected': isSelected(child.Id, 'group')}"
+          class="tree-item"
+        >
+          <span class="icon-container">
+            <span class="icon" *ngIf="child.children.length > 0 || (child.types && child.types.length > 0)">
+              {{ child.isExpanded ? '-' : '›' }}
+            </span>
+          </span>
+          <img src="https://cs-fleet.ru/thumb/2/9KdGv9owG8WM3Odp3jplJA/350r350/d/sudovaya_zapchast.png" class="icon-image" alt="Group Icon">
+          {{ child.Name }}
+        </div>
+
+        <ul *ngIf="child.isExpanded && child.children.length > 0" style="margin-left: 20px;">
+          <ng-container *ngTemplateOutlet="recursiveGroup; context:{ $implicit: child.children }"></ng-container>
+        </ul>
+
+        <ul *ngIf="child.isExpanded && child.types && child.types.length > 0" style="margin-left: 20px;">
+          <ng-container *ngFor="let type of child.types">
+            <li>
+              <div
+                (click)="handleTypeClick(type.Id)"
+                [ngClass]="{'selected': isSelected(type.Id, 'type')}"
+                class="tree-item"
+              >
+                <span class="icon-container"></span>
+                <img src="https://kartinki.pibig.info/uploads/posts/2023-08/1692294662_kartinki-pibig-info-p-kartinka-shesternya-pinterest-61.jpg" class="type-image" alt="Type Icon">
+                {{ type.Name }}
+              </div>
+            </li>
+          </ng-container>
+        </ul>
+      </li>
+    </ng-container>
+  </ng-template>
+</div>

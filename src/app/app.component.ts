@@ -1,7 +1,5 @@
-import { Component, ElementRef, ViewChild, HostListener } from '@angular/core';
-
+import { Component, ElementRef, ViewChild, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 
 export interface Group {
   Id: number;
@@ -17,52 +15,40 @@ export interface Type {
   GroupId: number;
 }
 
-export interface TreeNode {
-  id: number;
-  type: string;
-  name: string;
-}
-
-interface ReturnModelItem {
-  type: 'group' | 'type';
-  id: number;
-}
-
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class AppComponent {
-
   @ViewChild('treeContainer') treeContainer: ElementRef | undefined;
 
   groups: Group[] = [
     { "Id": 1, "Name": "string [Г]", "EnterpriseId": 0, "ParentId": null },
     { "Id": 2, "Name": "группа 1 [Г]", "EnterpriseId": 0, "ParentId": null },
     { "Id": 3, "Name": "группа 1 [Г]", "EnterpriseId": 0, "ParentId": null },
-    { "Id": 4, "Name": "группа 1 [Г]", "EnterpriseId": 0, "ParentId": null },
-    { "Id": 5, "Name": "dc vbn  [Г]", "EnterpriseId": 0, "ParentId": null },
-    { "Id": 6, "Name": "vgbnm [Г]", "EnterpriseId": 0, "ParentId": null },
     { "Id": 7, "Name": "Группа №1 [Г]", "EnterpriseId": 4, "ParentId": null },
     { "Id": 8, "Name": "Группа №2 [Г]", "EnterpriseId": 4, "ParentId": 7 },
-    { "Id": 9, "Name": "Группа №3 [Г]", "EnterpriseId": 4, "ParentId": 8 }
+    { "Id": 9, "Name": "Группа №3 [Г]", "EnterpriseId": 4, "ParentId": 8 },
+    { "Id": 10, "Name": "Группа №4 [Г]", "EnterpriseId": 4, "ParentId": 9 },
+    { "Id": 11, "Name": "Группа №5 [Г]", "EnterpriseId": 4, "ParentId": 10 },
   ];
 
   types: Type[] = [
-    { "Id": 1, "Name": "1 [Т]", "EnterpriseId": 4, "GroupId": 1 },
+    { "Id": 1, "Name": "string [Т]", "EnterpriseId": 4, "GroupId": 1 },
     { "Id": 2, "Name": "string [Т]", "EnterpriseId": 4, "GroupId": 2 },
     { "Id": 3, "Name": "string [Т]", "EnterpriseId": 4, "GroupId": 3 },
     { "Id": 4, "Name": "string [Т]", "EnterpriseId": 4, "GroupId": 3 },
-    { "Id": 5, "Name": "string [Т]", "EnterpriseId": 4, "GroupId": 9 },
-    { "Id": 6, "Name": "Test [Т]", "EnterpriseId": 4, "GroupId": 3 }
+    { "Id": 5, "Name": "string [Т]", "EnterpriseId": 4, "GroupId": 3 },
+    { "Id": 6, "Name": "Test [Т]", "EnterpriseId": 4, "GroupId": 11 }
   ];
+  
   tree: any[] = [];
   selectedId: number | null = null;
-  returnModel: ReturnModelItem[] = [];
+  returnModel: any[] = [];
 
   ngOnInit(): void {
     this.buildTree();
@@ -115,12 +101,15 @@ export class AppComponent {
   handleGroupClick(id: number, group: any) {
     this.selectedId = id;
     this.returnModel = [{ type: 'group', id: id }];
+    console.log(this.returnModel[0])
     group.isExpanded = !group.isExpanded;
   }
 
   handleTypeClick(id: number) {
     this.selectedId = id;
     this.returnModel = [{ type: 'type', id: id }];
+    console.log(this.returnModel[0])
+
   }
 
   isSelected(id: number, type: 'group' | 'type'): boolean {
@@ -138,6 +127,4 @@ export class AppComponent {
     this.selectedId = null;
     this.returnModel = [];
   }
-  
 }
-
